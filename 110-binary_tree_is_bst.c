@@ -40,13 +40,15 @@ int min_max(const binary_tree_t *tree, int type)
  */
 int binary_tree_is_bst(const binary_tree_t *tree)
 {
-	int max, min;
+	int max = INT_MIN, min = INT_MAX;
 
 	if (!tree)
 		return (0);
 
-	max = min_max(tree->left, 1);
-	min = min_max(tree->right, -1);
+	if (tree->left)
+		max = min_max(tree->left, 1);
+	if (tree->right)
+		min = min_max(tree->right, -1);
 
 	if (tree->n > max && tree->n < min)
 		return (1);
