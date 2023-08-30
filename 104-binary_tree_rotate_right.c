@@ -21,16 +21,16 @@ binary_tree_t *binary_tree_rotate_right(binary_tree_t *tree)
 	new_root->right = tree;
 	/* set tmp the original right to tree left */
 	tree->left = tmp;
-	
+
 	/* if tmp exists we set its parent to tree */
 	if (tmp)
 		tmp->parent = tree;
-	
+
 	/* swap the parents of the new and the old root */
 	swap = tree->parent;
 	tree->parent = new_root;
 	new_root->parent = swap;
-	
+
 	/* if tree had a parent, we set new_root in the correct branch */
 	if (swap)
 	{
