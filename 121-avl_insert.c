@@ -96,14 +96,14 @@ avl_t *avl_insert(avl_t **tree, int value)
 		if (balance_factor >= 2)
 		{
 			/* printf("balance %d LL or LR\n", balance_factor); */
-			if (imbalance_node->left->n < value)
+			if (imbalance_node->n < value)
 				binary_tree_rotate_left(imbalance_node->left);
 			binary_tree_rotate_right(imbalance_node);
 		}
 		else
 		{
 			/* printf("balance %d RR or RL\n", balance_factor); */
-			if (imbalance_node->right->n > value)
+			if (imbalance_node->n > value)
 				binary_tree_rotate_right(imbalance_node->right);
 			binary_tree_rotate_left(imbalance_node);
 		}
