@@ -2,18 +2,15 @@
 #include <stdio.h>
 
 /**
- * bst_insert - inserts a value in a Binary Search Tree
+ * avl_insert_rec - inserts a value in a Binary Search Tree
  * @tree: is a double pointer to the root node of the BST
  * to insert the value
  * @value: is the value to store in the node to be inserted
  * Return: a pointer to the created node or NULL
  */
-bst_t *bst_insert(bst_t **tree, int value)
+avl_t *avl_insert_rec(avl_t **tree, int value)
 {
-	bst_t *new;
-
-	if (!tree)
-		return (NULL);
+	avl_t *new;
 
 	if (*tree == NULL)
 	{
@@ -28,7 +25,7 @@ bst_t *bst_insert(bst_t **tree, int value)
 	if ((*tree)->n > value)
 	{
 		if ((*tree)->left != NULL)
-			return (bst_insert(&((*tree)->left), value));
+			return (avl_insert_rec(&((*tree)->left), value));
 
 		new = binary_tree_node(*tree, value);
 		if (!new)
@@ -40,7 +37,7 @@ bst_t *bst_insert(bst_t **tree, int value)
 	else if ((*tree)->n < value)
 	{
 		if ((*tree)->right != NULL)
-			return (bst_insert(&((*tree)->right), value));
+			return (avl_insert_rec(&((*tree)->right), value));
 
 		new = binary_tree_node(*tree, value);
 		if (!new)
@@ -49,7 +46,8 @@ bst_t *bst_insert(bst_t **tree, int value)
 
 		return (new);
 	}
-	return (NULL);
+	else
+		return (*tree);
 }
 
 /**
@@ -87,29 +85,27 @@ avl_t *avl_insert(avl_t **tree, int value)
 	if (!tree || !value)
 		return (NULL);
 
-	new = bst_insert(tree, value);
+	new = avl_insert_rec(tree, value);
+	if (!new)
+		return (NULL);
 
-	imbalance_node = check_imbalance(new);
+	imbalance_node = check_imbalance(new->parent);
 	if (imbalance_node)
 	{
 		balance_factor = binary_tree_balance(imbalance_node);
-		if (balance_factor > 1)
+		if (balance_factor >= 2)
 		{
 			/* printf("balance %d LL or LR\n", balance_factor); */
-			binary_tree_rotate_left(new->parent);
-			if (imbalance_node->left == new->parent)
-				binary_tree_rotate_left(imbalance_node);
-			else
-				binary_tree_rotate_right(imbalance_node);
+			if (imbalance_node->left->right == new)
+				binary_tree_rotate_left(imbalance_node->left);
+			binary_tree_rotate_right(imbalance_node);
 		}
 		else
 		{
 			/* printf("balance %d RR or RL\n", balance_factor); */
-			binary_tree_rotate_right(new->parent);
-			if (imbalance_node->right == new->parent)
-				binary_tree_rotate_left(imbalance_node);
-			else
-				binary_tree_rotate_right(imbalance_node);
+			if (imbalance_node->right->left == new)
+				binary_tree_rotate_right(imbalance_node->right);
+			binary_tree_rotate_left(imbalance_node);
 		}
 	}
 
