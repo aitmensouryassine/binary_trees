@@ -10,54 +10,46 @@
  * Return: a pointer to the created node or NULL
  */
 
-avl_t *avl_insert_rec(avl_t *tree, avl_t *parent, int value, avl_t **node)
+avl_t *avl_insert_rec(avl_t **tree, avl_t *parent, int value, avl_t **node)
 {
 	int balance;
 
-	if (!tree)
-	{
-		*node = binary_tree_node(parent, value);
-		if (*node == NULL)
-			return (NULL);
-		return (*node);
-	}
+	if (*tree == NULL)
+		return (*node = binary_tree_node(parent, value));
 
-	if (value < tree->n)
+	if ((*tree)->n > value)
 	{
-		tree->left = avl_insert_rec(tree->left, tree, value, node);
-		if (tree->left == NULL)
+		(*tree)->left = avl_insert_rec(&(*tree)->left, *tree, value, node);
+		if ((*tree)->left == NULL)
 			return (NULL);
 	}
-	else if (value > tree->n)
+	else if ((*tree)->n < value)
 	{
-		tree->right = avl_insert_rec(tree->right, tree, value, node);
-		if (tree->right == NULL)
+		(*tree)->right = avl_insert_rec(&(*tree)->right, *tree, value, node);
+		if ((*tree)->right == NULL)
 			return (NULL);
 	}
 	else
-		return (tree);
+		return (*tree);
 
-	balance = binary_tree_balance(tree);
+	balance = binary_tree_balance(*tree);
 
-	if (balance > 1 && value < tree->left->n)
-		tree = binary_tree_rotate_right(tree);
-
-	if (balance < -1 && value > tree->right->n)
-		tree = binary_tree_rotate_left(tree);
-
-	if (balance > 1 && value > tree->left->n)
+	if (balance > 1 && (*tree)->left->n > value)
+		*tree = binary_tree_rotate_right(*tree);
+	if (balance < -1 && (*tree)->right->n < value)
+		*tree = binary_tree_rotate_left(*tree);
+	if (balance > 1 && (*tree)->left->n < value)
 	{
-		tree->left = binary_tree_rotate_left(tree->left);
-		tree = binary_tree_rotate_right(tree);
+		(*tree)->left = binary_tree_rotate_left((*tree)->left);
+		*tree = binary_tree_rotate_right(*tree);
+	}
+	if (balance < -1 && (*tree)->right->n > value)
+	{
+		(*tree)->right = binary_tree_rotate_right((*tree)->right);
+		*tree = binary_tree_rotate_left(*tree);
 	}
 
-	if (balance < -1 && value < tree->right->n)
-	{
-		tree->right = binary_tree_rotate_right(tree->right);
-		tree = binary_tree_rotate_left(tree);
-	}
-
-	return (tree);
+	return (*tree);
 }
 
 
@@ -70,7 +62,7 @@ avl_t *avl_insert_rec(avl_t *tree, avl_t *parent, int value, avl_t **node)
  */
 avl_t *avl_insert(avl_t **tree, int value)
 {
-	avl_t *new;
+	avl_t *new = NULL;
 
 	if (!tree || !value)
 		return (NULL);
@@ -82,6 +74,6 @@ avl_t *avl_insert(avl_t **tree, int value)
 			return (NULL);
 		return (*tree);
 	}
-	avl_insert_rec(*tree, *tree, value, &new);
+	avl_insert_rec(tree, *tree, value, &new);
 	return (new);
 }
