@@ -1,4 +1,5 @@
 #include "binary_trees.h"
+#include <stdio.h>
 
 /**
  * avl_insert_rec - inserts a value in a Binary Search Tree
@@ -38,14 +39,14 @@ avl_t *avl_insert_rec(avl_t **tree, avl_t *parent, int value, avl_t **node)
 	balance = binary_tree_balance(*tree);
 	if (balance > 1 && (*tree)->left->n > value)
 		*tree = binary_tree_rotate_right(*tree);
-	if (balance < -1 && (*tree)->right->n < value)
+	else if (balance < -1 && (*tree)->right->n < value)
 		*tree = binary_tree_rotate_left(*tree);
-	if (balance > 1 && (*tree)->left->n < value)
+	else if (balance > 1 && (*tree)->left->n < value)
 	{
 		(*tree)->left = binary_tree_rotate_left((*tree)->left);
 		*tree = binary_tree_rotate_right(*tree);
 	}
-	if (balance < -1 && (*tree)->right->n > value)
+	else if (balance < -1 && (*tree)->right->n > value)
 	{
 		(*tree)->right = binary_tree_rotate_right((*tree)->right);
 		*tree = binary_tree_rotate_left(*tree);
