@@ -1,74 +1,58 @@
 #include "binary_trees.h"
-#include <stdio.h>
 
 /**
  * avl_insert_rec - inserts a value in a Binary Search Tree
  * @tree: is a double pointer to the root node of the BST
  * to insert the value
  * @value: is the value to store in the node to be inserted
+ * @parent: the parent of the node
+ * @node: a pointer to the created node
  * Return: a pointer to the created node or NULL
  */
-avl_t *avl_insert_rec(avl_t **tree, int value)
+
+avl_t *avl_insert_rec(avl_t **tree, avl_t *parent, int value, avl_t **node)
 {
-	avl_t *new = NULL;
+	int balance;
 
 	if (*tree == NULL)
 	{
-		new = binary_tree_node(NULL, value);
-		if (!new)
+		*node = binary_tree_node(parent, value);
+		if (*node == NULL)
 			return (NULL);
-
-		*tree = new;
-		return (new);
+		return (*node);
 	}
-
 	if ((*tree)->n > value)
 	{
-		if ((*tree)->left != NULL)
-			return (avl_insert_rec(&((*tree)->left), value));
-
-		new = binary_tree_node(*tree, value);
-		if (!new)
+		(*tree)->left = avl_insert_rec(&(*tree)->left, *tree, value, node);
+		if ((*tree)->left == NULL)
 			return (NULL);
-		(*tree)->left = new;
-
-		return (new);
 	}
 	else if ((*tree)->n < value)
 	{
-		if ((*tree)->right != NULL)
-			return (avl_insert_rec(&((*tree)->right), value));
-
-		new = binary_tree_node(*tree, value);
-		if (!new)
+		(*tree)->right = avl_insert_rec(&(*tree)->right, *tree, value, node);
+		if ((*tree)->right == NULL)
 			return (NULL);
-		(*tree)->right = new;
-
-		return (new);
 	}
 	else
 		return (*tree);
+	balance = binary_tree_balance(*tree);
+	if (balance > 1 && (*tree)->left->n > value)
+		*tree = binary_tree_rotate_right(*tree);
+	if (balance < -1 && (*tree)->right->n < value)
+		*tree = binary_tree_rotate_left(*tree);
+	if (balance > 1 && (*tree)->left->n < value)
+	{
+		(*tree)->left = binary_tree_rotate_left((*tree)->left);
+		*tree = binary_tree_rotate_right(*tree);
+	}
+	if (balance < -1 && (*tree)->right->n > value)
+	{
+		(*tree)->right = binary_tree_rotate_right((*tree)->right);
+		*tree = binary_tree_rotate_left(*tree);
+	}
+	return (*tree);
 }
 
-/**
- * check_imbalance - check for imbalanced node starting from node and up
- * @node: a pointer to the node from which to start looking for the
- * imbalanced node
- * Return: a pointer to the imbalanced node or NULL on failure
- */
-binary_tree_t *check_imbalance(binary_tree_t *node)
-{
-	int balance_factor;
-
-	if (!node)
-		return (NULL);
-
-	balance_factor = binary_tree_balance(node);
-	if (balance_factor < -1 || balance_factor > 1)
-		return (node);
-
-	return (check_imbalance(node->parent));
-}
 
 /**
  * avl_insert - inserts a value in an AVL Tree
@@ -79,42 +63,15 @@ binary_tree_t *check_imbalance(binary_tree_t *node)
  */
 avl_t *avl_insert(avl_t **tree, int value)
 {
-	avl_t *new, *imbalance_node;
-	int balance_factor;
+	avl_t *new = NULL;
 
-	if (!tree || !value)
-		return (NULL);
-
-	new = avl_insert_rec(tree, value);
-	if (!new)
-		return (NULL);
-
-	imbalance_node = check_imbalance(new->parent);
-	if (imbalance_node)
+	if (*tree == NULL)
 	{
-		balance_factor = binary_tree_balance(imbalance_node);
-		if (balance_factor >= 2)
-		{
-			/* printf("balance %d LL or LR\n", balance_factor); */
-			if (imbalance_node->left->n < value)
-			{
-				binary_tree_rotate_left(imbalance_node->left);
-				binary_tree_rotate_right(imbalance_node);
-			}
-			else if (imbalance_node->left->n > value)
-				binary_tree_rotate_right(imbalance_node);
-		}
-		else
-		{
-			/* printf("balance %d RR or RL\n", balance_factor); */
-			if (imbalance_node->right->n > value)
-			{
-				binary_tree_rotate_right(imbalance_node->right);
-				binary_tree_rotate_left(imbalance_node);
-			}
-			else if (imbalance_node->right->n < value)
-				binary_tree_rotate_left(imbalance_node);
-		}
+		*tree = binary_tree_node(NULL, value);
+		if (*tree == NULL)
+			return (NULL);
+		return (*tree);
 	}
+	avl_insert_rec(tree, *tree, value, &new);
 	return (new);
 }
