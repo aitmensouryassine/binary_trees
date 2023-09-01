@@ -9,8 +9,24 @@
  */
 avl_t *array_to_avl(int *array, size_t size)
 {
+	avl_t *tree = NULL;
+	size_t i, j;
+
 	if (!array || !size)
 		return (NULL);
 
-	return (array);
+	for (i = 0; i < size; i++)
+	{
+		for (j = 0; j < i; j++)
+		{
+			if (array[i] == array[j])
+				break;
+		}
+		if (i != j)
+			continue;
+		if (!avl_insert(&tree, array[i]))
+			return (NULL);
+	}
+
+	return (tree);
 }
